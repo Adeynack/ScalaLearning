@@ -1,3 +1,5 @@
+package p210Traits
+
 class Date(y: Int, m: Int, d: Int) extends Ord {
 
   def year = y

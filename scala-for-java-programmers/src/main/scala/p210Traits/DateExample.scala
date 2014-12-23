@@ -1,3 +1,5 @@
+package p210Traits
+
 object DateExample extends App {
 
   val dates = {
