@@ -6,5 +6,7 @@ object DateExample extends App {
     new Date(2014, 12, 22)
     new Date(2015, 12, 22)
   }
+
+  println(dates)
 //  println(dates(0))
 }

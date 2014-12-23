@@ -6,7 +6,7 @@ class Date(y: Int, m: Int, d: Int) extends Ord {
 
   def day = d
 
-  override def toString(): String = year + "-" + month + "-" + day
+  override def toString: String = year + "-" + month + "-" + day
 
   override def equals(that: Any): Boolean =
     that.isInstanceOf[Date] && {
