@@ -13,6 +13,31 @@ import p210Traits._
 
 object DateOrdTraitSpec extends Specification {
 
+  "A date" should {
+
+    "be created using the 'apply' method of the companion object" in {
+      val d : Date = Date(2014,7,8)
+      d.year must be equalTo 2014
+      d.month must be equalTo 7
+      d.day must be equalTo 8
+    }
+
+    "be created from an int" in {
+      val d : Date = Date(20141229)
+      d.year must be equalTo 2014
+      d.month must be equalTo 12
+      d.day must be equalTo 29
+    }
+
+    "be converted from an int" in {
+      val d : Date = 20141229
+      d.year must be equalTo 2014
+      d.month must be equalTo 12
+      d.day must be equalTo 29
+    }
+
+  }
+
   val today = new Date(2014, 11, 22)
   val tomorrow = new Date(2014, 11, 23)
   val nextMonth = new Date(2014, 12, 22)
@@ -26,6 +51,15 @@ object DateOrdTraitSpec extends Specification {
 
     "is not equal when compared to a string (str to Date conversation not supported)" in {
       today must not be equalTo("2014-11-22")
+    }
+
+    "be accessible by character (date part)" in {
+      today('y') must be equalTo 2014
+      today('m') must be equalTo 11
+      today('d') must be equalTo 22
+      today('Y') must be equalTo 2014
+      today('M') must be equalTo 11
+      today('D') must be equalTo 22
     }
 
     "throws an exception when checked if less to a string" in {
@@ -128,6 +162,6 @@ object DateOrdTraitSpec extends Specification {
       nextYear must be equalTo nextYear
     }
 
-    "be less than or equal than itself" ! (nextYear >= nextYear)
+    "be less than or equal than itself".distinct ! (nextYear >= nextYear)
   }
 }
