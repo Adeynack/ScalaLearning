@@ -168,29 +168,27 @@ object DateOrdTraitSpec extends Specification {
 
   "when automatically tested by array index, dates" should {
     val dates: Array[Date] = Array(today, tomorrow, nextMonth, nextYear)
-    for (leftIndex <- 0 until dates.length) {
-      for (rightIndex <- 0 until dates.length) {
-        val leftDate = dates(leftIndex)
-        val rightDate = dates(rightIndex)
-        def t(description: String) : String = "%s %s %s".format(leftDate, description, rightDate)
-        if (leftIndex < rightIndex) {
-          t("< ") ! (leftDate < rightDate)
-          t("<=") ! (leftDate <= rightDate)
-          t("!=") in {
-            leftDate must not equalTo rightDate
-          }
-        } else if (leftIndex == rightIndex) {
-          t("<=") ! (leftDate <= rightDate)
-          t("= ") in {
-            leftDate must be equalTo rightDate
-          }
-          t(">=") ! (leftDate >= rightDate)
-        } else {
-          t("> ") ! (leftDate > rightDate)
-          t(">=") ! (leftDate >= rightDate)
-          t("!=") in {
-            leftDate must not equalTo rightDate
-          }
+    for (leftIndex <- 0 until dates.length; rightIndex <- 0 until dates.length) {
+      val leftDate = dates(leftIndex)
+      val rightDate = dates(rightIndex)
+      def t(description: String): String = "%s %s %s".format(leftDate, description, rightDate)
+      if (leftIndex < rightIndex) {
+        t("< ") ! (leftDate < rightDate)
+        t("<=") ! (leftDate <= rightDate)
+        t("!=") in {
+          leftDate must not equalTo rightDate
+        }
+      } else if (leftIndex == rightIndex) {
+        t("<=") ! (leftDate <= rightDate)
+        t("= ") in {
+          leftDate must be equalTo rightDate
+        }
+        t(">=") ! (leftDate >= rightDate)
+      } else {
+        t("> ") ! (leftDate > rightDate)
+        t(">=") ! (leftDate >= rightDate)
+        t("!=") in {
+          leftDate must not equalTo rightDate
         }
       }
     }
