@@ -69,15 +69,15 @@ object ListComprehensionSpec extends Specification {
       b.toString() must be equalTo "A11 A12 A13 A21 A22 A23 A31 A32 A33 "
     }
 
-    "work with 'select' logic with multiline syntax" in {
+    "work with 'select' logic with multiline syntax and guard" in {
       val b = StringBuilder.newBuilder
-      for {i <- 10 to(30, 10)
+      for {i <- 10 to(30, 10) if (i/2) % 2 == 1
            j <- 1 to 3
            r = "A%d".format(i + j)} {
         b append r
         b append ' '
       }
-      b.toString() must be equalTo "A11 A12 A13 A21 A22 A23 A31 A32 A33 "
+      b.toString() must be equalTo "A11 A12 A13 A31 A32 A33 "
     }
   }
 }
