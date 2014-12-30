@@ -1,7 +1,7 @@
 package p210TraitsTests
 
-import org.specs2.mutable._
-import p210Traits._
+import org.specs2.mutable.Specification
+import p210Traits.Date
 
 /*
 
@@ -172,18 +172,25 @@ object DateOrdTraitSpec extends Specification {
       for (rightIndex <- 0 until dates.length) {
         val leftDate = dates(leftIndex)
         val rightDate = dates(rightIndex)
+        def t(description: String) : String = "%s %s %s".format(leftDate, description, rightDate)
         if (leftIndex < rightIndex) {
-          (leftDate + " <  " + rightDate) ! (leftDate < rightDate)
-          (leftDate + " <= " + rightDate) ! (leftDate <= rightDate)
+          t("< ") ! (leftDate < rightDate)
+          t("<=") ! (leftDate <= rightDate)
+          t("!=") in {
+            leftDate must not equalTo rightDate
+          }
         } else if (leftIndex == rightIndex) {
-          (leftDate + " <= " + rightDate) ! (leftDate <= rightDate)
-          (leftDate + " =  " + rightDate) in {
+          t("<=") ! (leftDate <= rightDate)
+          t("= ") in {
             leftDate must be equalTo rightDate
           }
-          (leftDate + " >= " + rightDate) ! (leftDate >= rightDate)
+          t(">=") ! (leftDate >= rightDate)
         } else {
-          (leftDate + " >  " + rightDate) ! (leftDate > rightDate)
-          (leftDate + " >= " + rightDate) ! (leftDate >= rightDate)
+          t("> ") ! (leftDate > rightDate)
+          t(">=") ! (leftDate >= rightDate)
+          t("!=") in {
+            leftDate must not equalTo rightDate
+          }
         }
       }
     }
