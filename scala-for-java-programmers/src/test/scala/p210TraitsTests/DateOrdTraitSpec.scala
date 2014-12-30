@@ -16,21 +16,21 @@ object DateOrdTraitSpec extends Specification {
   "A date" should {
 
     "be created using the 'apply' method of the companion object" in {
-      val d : Date = Date(2014,7,8)
+      val d: Date = Date(2014, 7, 8)
       d.year must be equalTo 2014
       d.month must be equalTo 7
       d.day must be equalTo 8
     }
 
     "be created from an int" in {
-      val d : Date = Date(20141229)
+      val d: Date = Date(20141229)
       d.year must be equalTo 2014
       d.month must be equalTo 12
       d.day must be equalTo 29
     }
 
     "be converted from an int" in {
-      val d : Date = 20141229
+      val d: Date = 20141229
       d.year must be equalTo 2014
       d.month must be equalTo 12
       d.day must be equalTo 29
@@ -162,6 +162,30 @@ object DateOrdTraitSpec extends Specification {
       nextYear must be equalTo nextYear
     }
 
-    "be less than or equal than itself".distinct ! (nextYear >= nextYear)
+    "be less than or equal than itself" ! (nextYear >= nextYear)
+
+  }
+
+  "when automatically tested by array index, dates" should {
+    val dates: Array[Date] = Array(today, tomorrow, nextMonth, nextYear)
+    for (leftIndex <- 0 until dates.length) {
+      for (rightIndex <- 0 until dates.length) {
+        val leftDate = dates(leftIndex)
+        val rightDate = dates(rightIndex)
+        if (leftIndex < rightIndex) {
+          (leftDate + " <  " + rightDate) ! (leftDate < rightDate)
+          (leftDate + " <= " + rightDate) ! (leftDate <= rightDate)
+        } else if (leftIndex == rightIndex) {
+          (leftDate + " <= " + rightDate) ! (leftDate <= rightDate)
+          (leftDate + " =  " + rightDate) in {
+            leftDate must be equalTo rightDate
+          }
+          (leftDate + " >= " + rightDate) ! (leftDate >= rightDate)
+        } else {
+          (leftDate + " >  " + rightDate) ! (leftDate > rightDate)
+          (leftDate + " >= " + rightDate) ! (leftDate >= rightDate)
+        }
+      }
+    }
   }
 }
