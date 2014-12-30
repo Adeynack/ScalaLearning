@@ -60,8 +60,26 @@ object ListComprehensionSpec extends Specification {
       v(9) must be equalTo 1
     }
 
-  }
+    "work with 'select' logic" in {
+      val b = StringBuilder.newBuilder
+      for (i <- 10 to(30, 10); j <- 1 to 3; r = "A%d".format(i + j)) {
+        b append r
+        b append ' '
+      }
+      b.toString() must be equalTo "A11 A12 A13 A21 A22 A23 A31 A32 A33 "
+    }
 
+    "work with 'select' logic with multiline syntax" in {
+      val b = StringBuilder.newBuilder
+      for {i <- 10 to(30, 10)
+           j <- 1 to 3
+           r = "A%d".format(i + j)} {
+        b append r
+        b append ' '
+      }
+      b.toString() must be equalTo "A11 A12 A13 A21 A22 A23 A31 A32 A33 "
+    }
+  }
 }
 
 // TODO: Find out how to test lists/iterables/collections.
