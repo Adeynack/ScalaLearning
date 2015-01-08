@@ -175,7 +175,7 @@ object Chapter02 extends Specification {
 
   }
 
-  // TODO: Find out how to test lists/iterables/collections.
+  // @TODO: Find out how to test lists/iterables/collections.
 
   /*
       SftI: 2.11 : Lazy Values

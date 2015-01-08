@@ -8,7 +8,9 @@
 package ScalaForTheImpatient
 
 import org.specs2.mutable.Specification
+import util.AutoIncrementInt
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 object Chapter03 extends Specification {
@@ -347,7 +349,7 @@ object Chapter03 extends Specification {
     //      [error]       scala.util.Sorting.quickSort(a)
     //      [error]                                   ^
     //
-//        "order arrays of elements extending trait 'Ordered'" in {
+    //        "order arrays of elements extending trait 'Ordered'" in {
     //
     //          class DegreeSinus(deg: Double) extends Ordered[Double] {
     //            def degrees = deg
@@ -380,5 +382,273 @@ object Chapter03 extends Specification {
       a.mkString(" and ") must be equalTo "1 and 2 and 7 and 9"
       a.mkString("<", ",", ">") must be equalTo "<1,2,7,9>"
     }
+  }
+
+  /*
+      3.6 Deciphering Scaladoc (additional methods)
+   */
+
+  "additional methods" should {
+
+    "append" in {
+      val b = ArrayBuffer(1, 2, 3)
+      b should contain(exactly(1, 2, 3)).inOrder
+      b.append(34, 35, 36)
+      b should contain(exactly(1, 2, 3, 34, 35, 36)).inOrder
+    }
+
+    "appendAll" in {
+      val s = Seq(11, 12, 13)
+      val b = ArrayBuffer(1, 2, 3)
+      b should contain(exactly(1, 2, 3)).inOrder
+      b.appendAll(s)
+      b should contain(exactly(1, 2, 3, 11, 12, 13)).inOrder
+    }
+
+    "count" in {
+      Seq(1, 2, 3, 4, 5).count(_ % 2 == 0) must be equalTo 2
+
+      Array(1, 2, 3).count(_ > 1) must be equalTo 2
+
+      ArrayBuffer(1, 2, 3, 4, 5, 6, 7, 8).count(e => {
+        if (e < 5) {
+          e % 2 == 1 // 1, 3
+        } else {
+          e % 4 == 0 // 8
+        }
+      }) must be equalTo 3
+
+    }
+
+    "+= and -=" in {
+      val b = ArrayBuffer(1, 2, 3)
+      b must contain(exactly(1, 2, 3)).inOrder
+
+      b += 8
+      b must contain(exactly(1, 2, 3, 8)).inOrder
+
+      b -= 2
+      b must contain(exactly(1, 3, 8)).inOrder
+
+      b += 42 -= 1 += 96 -= 3
+      b must contain(exactly(8, 42, 96)).inOrder
+    }
+
+    "copyToArray" in {
+      val a = new Array[Int](10)
+      a must be equalTo Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+      val b = ArrayBuffer(1, 2, 3)
+      b must contain(exactly(1, 2, 3)).inOrder
+
+      b copyToArray a
+      a must be equalTo Array(1, 2, 3, 0, 0, 0, 0, 0, 0, 0)
+
+      val b2 = Array(4, 5, 6)
+      b2.copyToArray(a, 3)
+      a must be equalTo Array(1, 2, 3, 4, 5, 6, 0, 0, 0, 0)
+    }
+
+    "max" in {
+      object SinOrdering extends Ordering[Int] {
+        override def compare(a: Int, b: Int): Int = {
+          val sinA: Double = math.sin(math.toRadians(a))
+          val sinB: Double = math.sin(math.toRadians(b))
+          sinA.compare(sinB)
+        }
+      }
+      val a = Array(15, 60, 150, 180)
+
+      // with natural ordering
+      a.max must be equalTo 180
+
+      // with sinus to sinus ordering
+      a.max(SinOrdering) must be equalTo 60
+    }
+  }
+
+  /*
+      3.7 Multidimensional Arrays
+   */
+
+  "multidimensional arrays" should {
+
+    def linearFill(arr: Array[Array[Int]]) {
+      val v = new AutoIncrementInt
+      for (r <- 0 until arr.length; c <- 0 until arr(r).length) arr(r)(c) = v next
+    }
+
+    "be built using 'ofDim' syntax (matrix)" in {
+      val matrix = Array.ofDim[Int](2, 3) // 3 rows, 4 columns
+      linearFill(matrix)
+      matrix(0)(0) must be equalTo 0
+      matrix(0)(1) must be equalTo 1
+      matrix(0)(2) must be equalTo 2
+      matrix(1)(0) must be equalTo 3
+      matrix(1)(1) must be equalTo 4
+      matrix(1)(2) must be equalTo 5
+    }
+
+    "be built in a 'ragged arrays' form (not the same length for 2nd dimension arrays)" in {
+      val triangle = new Array[Array[Int]](4)
+      for (i <- 0 until triangle.length) triangle(i) = new Array[Int](i + 1)
+      linearFill(triangle)
+      triangle(0) must be equalTo Array(0)
+      triangle(1) must be equalTo Array(1, 2)
+      triangle(2) must be equalTo Array(3, 4, 5)
+      triangle(3) must be equalTo Array(6, 7, 8, 9)
+    }
+  }
+
+  /*
+      3.8 Interoperating with Java
+   */
+
+  "interoperating with Java" should {
+
+    "allow to use Scala ArrayBuffer as a Java List" in {
+      import scala.collection.JavaConversions.bufferAsJavaList
+      val buffer = ArrayBuffer(1, 2, 3)
+      val javaList: java.util.List[Int] = buffer // Scala to Java
+      javaList must not beNull;
+      javaList.get(0) must be equalTo 1
+      javaList.get(1) must be equalTo 2
+      javaList.get(2) must be equalTo 3
+    }
+
+    "allow to use Java List as Scala Buffer" in {
+      import scala.collection.JavaConversions.asScalaBuffer
+      val javaList = new java.util.ArrayList[Int]()
+      javaList.add(1)
+      javaList.add(2)
+      javaList.add(3)
+      val buffer: mutable.Buffer[Int] = javaList // Java to Scala
+      buffer must contain(exactly(1, 2, 3)).inOrder
+    }
+
+    "allow both way (wrapping and unwrapping) conversion" in {
+      import scala.collection.JavaConversions.bufferAsJavaList
+      import scala.collection.JavaConversions.asScalaBuffer
+      val buffer = ArrayBuffer(1, 2, 3)
+      val javaList: java.util.List[Int] = buffer // Scala to Java
+      val unwrappedBuffer: mutable.Buffer[Int] = javaList // Java to Scala, simply unwrapping.
+      unwrappedBuffer must contain(exactly(1, 2, 3)).inOrder
+    }
+  }
+
+  /*
+      End of chapter exercises.
+   */
+
+  "exercises" should {
+
+    "1. Write a code snippet that sets 'a' to an array of 'n' random integers between [0, n[." in {
+      def set(array: Array[Int], value: Int): Unit = {
+        for (index <- 0 until array.length) {
+          array(index) = value
+        }
+      }
+      val a = Array(1, 2, 3, 4)
+      set(a, 42)
+      a must be equalTo Array(42, 42, 42, 42)
+    }
+
+    "2. Write a loop that swaps adjacent elements of an array of integers. For example, Array(1, 2, 3, 4, 5) becomes Array(2, 1, 4, 3, 5)." in {
+      def swapAdjacent(array: Array[Int]): Array[Int] = {
+        var i = 0
+        while (i < array.length - 1) {
+          val v1 = array(i)
+          val v2 = array(i + 1)
+          if (v1 + 1 == v2) {
+            array(i) = v2
+            array(i + 1) = v1
+            i += 2
+          } else {
+            i += 1
+          }
+        }
+        array
+      }
+
+      swapAdjacent(Array(1, 3, 5, 7)) must be equalTo Array(1, 3, 5, 7)
+      swapAdjacent(Array(1, 2, 3, 7)) must be equalTo Array(2, 1, 3, 7)
+      swapAdjacent(Array(1, 2, 3, 4, 5)) must be equalTo Array(2, 1, 4, 3, 5)
+    }
+
+    "3. Repeat the preceding assignment, but produce a new array with the swapped values. Use for/yield." in {
+      def swapAdjacent(array: Array[Int]): Array[Int] = {
+        var swapping: Option[Int] = None
+        val result =
+          for (index <- 0 until array.length) yield {
+            if (swapping.isDefined) {
+              val s = swapping.get
+              swapping = None
+              s
+            } else {
+              val v1 = array(index)
+              if (index == array.length - 1) {
+                v1
+              } else {
+                val v2 = array(index + 1)
+                if (v1 + 1 == v2) {
+                  swapping = Some(v1)
+                  v2
+                } else {
+                  v1
+                }
+              }
+            }
+          }
+        result.toArray
+      }
+
+      swapAdjacent(Array(1, 3, 5, 7)) must be equalTo Array(1, 3, 5, 7)
+      swapAdjacent(Array(1, 2, 3, 7)) must be equalTo Array(2, 1, 3, 7)
+      swapAdjacent(Array(1, 2, 3, 4, 5)) must be equalTo Array(2, 1, 4, 3, 5)
+    }
+
+    "3.1. Alternative understanding of the question" in {
+      def swapAdjacent(array: Array[Int]): Array[Int] = {
+        var swapping: Option[Int] = None
+        val maxIndexToCheck: Int = array.length - 1
+        val result =
+          for (index <- 0 until array.length) yield {
+            if (index % 2 == 0) {
+              if (index < maxIndexToCheck) {
+                array(index + 1)
+              } else {
+                array(index)
+              }
+            } else {
+              array(index - 1)
+            }
+          }
+        result.toArray
+      }
+
+      swapAdjacent(Array(1, 3, 5, 7)) must be equalTo Array(3, 1, 7, 5)
+      swapAdjacent(Array(1, 2, 3, 7)) must be equalTo Array(2, 1, 7, 3)
+      swapAdjacent(Array(1, 2, 3, 4, 5)) must be equalTo Array(2, 1, 4, 3, 5)
+    }
+
+    "4. Given an array of integers, produce a new array that contains all positive values of the original array, in their original order, followed by all values that are zero or negative, in their original order." in {
+      def organize(array: Array[Int]) : Array[Int] = {
+        val result = new ArrayBuffer[Int]
+        result ++=(for (e <- array if e > 0) yield e) ++=(for (e <- array if e <= 0) yield e)
+        result toArray
+      }
+
+      organize(Array(1, 2, -3, 4, -5)) must be equalTo Array(1, 2, 4, -3, -5)
+      organize(Array(1, 2, 3, 4, 5)) must be equalTo Array(1, 2, 3, 4, 5)
+      organize(Array(-1, -2, -3, -4, 5)) must be equalTo Array(5, -1, -2, -3, -4)
+      organize(Array(1, 2, 0, 4, -5)) must be equalTo Array(1, 2, 4, 0, -5)
+    }
+
+    "5. How do you compute the average of an Array[Double]?" in {
+      def average(numbers: Array[Double]) : Double = numbers.sum / numbers.length
+      average(Array(1, 2, 3)) must be equalTo 2.0
+      average(Array(88, 89, 92, 92, 87, 92)) must be equalTo 90.0
+    }
+
   }
 }
