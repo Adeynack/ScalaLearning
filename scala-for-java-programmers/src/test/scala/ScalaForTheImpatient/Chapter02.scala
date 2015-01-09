@@ -347,6 +347,11 @@ object Chapter02 extends Specification {
       l.get(10) must be equalTo 0
     }
 
+    "4.1. Alternative answer, usiong 'by' for the step." in {
+      val b = for (x <- 10 to 0 by -1) yield x
+      b must contain(exactly(10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)).inOrder
+    }
+
     "5. Write a procedure countdown(n: Int) that prints the numbers from n to 0." in {
 
       def countdown(n: Int): String = {

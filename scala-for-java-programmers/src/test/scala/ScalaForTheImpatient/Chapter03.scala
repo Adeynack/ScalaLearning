@@ -12,6 +12,7 @@ import util.AutoIncrementInt
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Sorting
 
 object Chapter03 extends Specification {
 
@@ -338,7 +339,7 @@ object Chapter03 extends Specification {
 
     "order arrays (but not ArrayBuffers) in place" in {
       val a = Array(1, 7, 2, 9)
-      scala.util.Sorting.quickSort(a)
+      Sorting quickSort a
       a must be equalTo Array(1, 2, 7, 9)
     }
 
@@ -346,8 +347,8 @@ object Chapter03 extends Specification {
     //
     // diverging implicit expansion for type DegreeSinus => Comparable[DegreeSinus]
     //      [error] starting with method $conforms in object Predef
-    //      [error]       scala.util.Sorting.quickSort(a)
-    //      [error]                                   ^
+    //      [error]       Sorting quickSort a
+    //      [error]                         ^
     //
     //        "order arrays of elements extending trait 'Ordered'" in {
     //
@@ -370,7 +371,7 @@ object Chapter03 extends Specification {
     //          }
     //
     //          val a = Array[DegreeSinus](15, 60.5123, 150, 180)
-    //          scala.util.Sorting.quickSort(a)
+    //          Sorting quickSort a
     //
     ////          DegreeSinus(100) printToConsole
     //
@@ -609,7 +610,6 @@ object Chapter03 extends Specification {
 
     "3.1. Alternative understanding of the question" in {
       def swapAdjacent(array: Array[Int]): Array[Int] = {
-        var swapping: Option[Int] = None
         val maxIndexToCheck: Int = array.length - 1
         val result =
           for (index <- 0 until array.length) yield {
@@ -631,10 +631,10 @@ object Chapter03 extends Specification {
       swapAdjacent(Array(1, 2, 3, 4, 5)) must be equalTo Array(2, 1, 4, 3, 5)
     }
 
-    "4. Given an array of integers, produce a new array that contains all positive values of the original array, in their original order, followed by all values that are zero or negative, in their original order." in {
-      def organize(array: Array[Int]) : Array[Int] = {
+    "4. Given an array of integers, produce a new array that contains all positive\nvalues of the original array, in their original order, followed by all values that\nare zero or negative, in their original order." in {
+      def organize(array: Array[Int]): Array[Int] = {
         val result = new ArrayBuffer[Int]
-        result ++=(for (e <- array if e > 0) yield e) ++=(for (e <- array if e <= 0) yield e)
+        result ++= (for (e <- array if e > 0) yield e) ++= (for (e <- array if e <= 0) yield e)
         result toArray
       }
 
@@ -645,10 +645,79 @@ object Chapter03 extends Specification {
     }
 
     "5. How do you compute the average of an Array[Double]?" in {
-      def average(numbers: Array[Double]) : Double = numbers.sum / numbers.length
+      def average(numbers: Array[Double]): Double = numbers.sum / numbers.length
       average(Array(1, 2, 3)) must be equalTo 2.0
       average(Array(88, 89, 92, 92, 87, 92)) must be equalTo 90.0
     }
 
+    "6. a) How do you rearrange the elements of an Array[Int] so that they appear in\nreverse sorted order? How do you do the same with an ArrayBuffer[Int]?" in {
+      def reverse[T](a: Array[T]): Array[T] = {
+        val midIndex = if (a.length % 2 == 0) a.length / 2 else (a.length - 1) / 2
+        for (index <- 0 until midIndex) {
+          val reverseIndex = a.length - 1 - index
+          val reverseValue = a(index)
+          a(index) = a(reverseIndex)
+          a(reverseIndex) = reverseValue
+        }
+        a
+      }
+
+      reverse(Array(1, 2, 3, 4)) must be equalTo Array(4, 3, 2, 1)
+      reverse(Array('a', 'b', 'c')) must be equalTo Array('c', 'b', 'a')
+    }
+
+    "6. b) The same with an ArrayBuffer" in {
+
+      //      def reverse[T <: Ordered[T]](a: ArrayBuffer[T]) : ArrayBuffer[T] = {
+      //        a.sortWith((a: T, b: T) => a > b)
+      //      }
+      //      reverse(ArrayBuffer(1, 2, 3, 4)) must contain(exactly(4, 3, 2, 1)).inOrder
+      //      reverse(ArrayBuffer('a', 'b', 'c')) must contain(exactly('c', 'b', 'a')).inOrder
+
+      ArrayBuffer(1, 2, 3, 4).sortWith(_ > _) must contain(exactly(4, 3, 2, 1)).inOrder
+      ArrayBuffer('a', 'b', 'c').sortWith(_ > _) must contain(exactly('c', 'b', 'a')).inOrder
+    }
+
+    "7. Write a code snippet that produces all values from an array with duplicates\nremoved. (Hint: Look at Scaladoc.)" in {
+      def removeDuplicates[T](a: Array[T]): Array[T] = {
+        a distinct
+      }
+
+      removeDuplicates(Array(1, 2, 1, 3, 1)) must be equalTo Array(1, 2, 3)
+      removeDuplicates(Array(4, 7, 4, 2, 4, 65, 7, 8, 78, 6, 4, 32)) must be equalTo Array(4, 7, 2, 65, 8, 78, 6, 32)
+    }
+
+    "8. Rewrite the example at the end of Section 3.4, “Transforming Arrays,” on\npage 32. Collect indexes of the negative elements, reverse the sequence, drop\nthe last index, and call a.remove(i) for each index. Compare the efficiency of\nthis approach with the two approaches in Section 3.4." in {
+      true must beTrue
+      // todo: The example in question was not 'working' (see todo comment in section 3.4).
+    }
+
+    "9. Make a collection of all time zones returned by java.util.TimeZone.getAvailableIDs\nthat are in America. Strip off the \"America/\" prefix and sort the result." in {
+      val americaTimeZonePrefix = "America/"
+
+      // Using list comprehension.
+      val timeZonesInAmericaFromListComprehension =
+        for (z <- java.util.TimeZone.getAvailableIDs
+              if z.startsWith(americaTimeZonePrefix))
+        yield z substring americaTimeZonePrefix.length
+      Sorting quickSort timeZonesInAmericaFromListComprehension
+
+      // Using method chaining.
+      val timeZonesInAmericaFromMethodCalls =
+        java.util.TimeZone.getAvailableIDs
+          .filter(_ startsWith americaTimeZonePrefix)
+          .map(_ substring americaTimeZonePrefix.length)
+          .sorted
+
+      timeZonesInAmericaFromListComprehension must be equalTo timeZonesInAmericaFromMethodCalls
+    }
+
+    "10. Import java.awt.datatransfer._ and make an object of type SystemFlavorMap with\nthe call\nval flavors = SystemFlavorMap.getDefaultFlavorMap().asInstanceOf[SystemFlavorMap]\nThen call the getNativesForFlavor method with parameter DataFlavor.imageFlavor\nand get the return value as a Scala buffer. (Why this obscure class? It’s hard\nto find uses of java.util.List in the standard Java library.)" in {
+      import java.awt.datatransfer._
+      import scala.collection.JavaConversions.asScalaBuffer
+      val flavors = SystemFlavorMap.getDefaultFlavorMap.asInstanceOf[SystemFlavorMap]
+      val natives : mutable.Buffer[String] = flavors.getNativesForFlavor(DataFlavor.imageFlavor)
+      natives must contain(exactly("PNG", "JFIF", "TIFF")).inOrder
+    }
   }
 }
