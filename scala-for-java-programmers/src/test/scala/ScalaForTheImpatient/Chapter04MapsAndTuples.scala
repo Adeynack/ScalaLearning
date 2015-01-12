@@ -11,7 +11,7 @@ import org.specs2.mutable.Specification
 
 import scala.collection._
 
-object Chapter04 extends Specification {
+object Chapter04MapsAndTuples extends Specification {
 
   //
   //  4.1 Constructing a Map

@@ -12,7 +12,7 @@ import java.util
 
 import org.specs2.mutable.Specification
 
-object Chapter02 extends Specification {
+object Chapter02ControlStructuresAndFunctions extends Specification {
 
   "list comprehension" should {
 

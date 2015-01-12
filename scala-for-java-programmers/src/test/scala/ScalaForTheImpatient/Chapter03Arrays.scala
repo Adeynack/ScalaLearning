@@ -14,7 +14,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Sorting
 
-object Chapter03 extends Specification {
+object Chapter03Arrays extends Specification {
 
   /*
       3.1 Fixed-Length Arrays
