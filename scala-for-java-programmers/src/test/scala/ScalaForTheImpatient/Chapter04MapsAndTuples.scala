@@ -398,11 +398,11 @@ object Chapter04MapsAndTuples extends Specification {
         m(">") must be equalTo 3
       }
     }
-
-    //
-    //  Exercises
-    //
-
-    // todo: Exercises of chapter 4.
   }
+
+  //
+  //  Exercises
+  //
+
+  // todo: Exercises of chapter 4.
 }
