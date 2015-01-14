@@ -1,10 +1,3 @@
-/*
- *
- *    Scala for the Impatient
- *
- *    Chapter 3 : Working with Arrays
- *
- */
 package ScalaForTheImpatient
 
 import org.specs2.mutable.Specification
@@ -14,6 +7,13 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Sorting
 
+/**
+ *
+ *    Scala for the Impatient
+ *
+ *    Chapter 3 : Working with Arrays
+ *
+ */
 object Chapter03Arrays extends Specification {
 
   /*

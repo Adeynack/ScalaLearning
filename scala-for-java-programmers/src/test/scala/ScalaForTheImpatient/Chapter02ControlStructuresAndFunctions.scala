@@ -1,10 +1,3 @@
-/*
- *
- *    Scala for the Impatient
- *
- *    Chapter 2 : Control Structures and Functions
- *
- */
 package ScalaForTheImpatient
 
 import java.text.MessageFormat
@@ -12,6 +5,13 @@ import java.util
 
 import org.specs2.mutable.Specification
 
+/**
+ *
+ *    Scala for the Impatient
+ *
+ *    Chapter 2 : Control Structures and Functions
+ *
+ */
 object Chapter02ControlStructuresAndFunctions extends Specification {
 
   "list comprehension" should {

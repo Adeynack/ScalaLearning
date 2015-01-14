@@ -1,16 +1,16 @@
-/*
- *
- *    Scala for the Impatient
- *
- *    Chapter 4 : Maps and Tuples
- *
- */
 package ScalaForTheImpatient
 
 import org.specs2.mutable.Specification
 
 import scala.collection._
 
+/**
+ *
+ *    Scala for the Impatient
+ *
+ *    Chapter 4 : Maps and Tuples
+ *
+ */
 object Chapter04MapsAndTuples extends Specification {
 
   //
