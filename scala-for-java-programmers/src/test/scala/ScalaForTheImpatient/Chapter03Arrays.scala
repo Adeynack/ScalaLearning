@@ -715,7 +715,7 @@ object Chapter03Arrays extends Specification {
     "10. Import java.awt.datatransfer._ and make an object of type SystemFlavorMap with\nthe call\nval flavors = SystemFlavorMap.getDefaultFlavorMap().asInstanceOf[SystemFlavorMap]\nThen call the getNativesForFlavor method with parameter DataFlavor.imageFlavor\nand get the return value as a Scala buffer. (Why this obscure class? It’s hard\nto find uses of java.util.List in the standard Java library.)" in {
       def contentIsTheSame(javaList: java.util.List[String], scalaList: Traversable[String]): Boolean = {
         val javaIterator = javaList.iterator()
-        scalaList.forall(scalaElement => javaIterator.hasNext() && javaIterator.next() == scalaElement)
+        scalaList.forall(scalaElement => javaIterator.hasNext && javaIterator.next() == scalaElement)
       }
 
       import java.awt.datatransfer._
