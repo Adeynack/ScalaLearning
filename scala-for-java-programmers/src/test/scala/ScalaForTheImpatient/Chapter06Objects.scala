@@ -155,4 +155,30 @@ object Chapter06Objects extends Specification {
       "_"
     )).inOrder
   }
+
+  //
+  //  6.4 The 'apply' method
+  //
+
+  // See example in 6.2. An 'apply' method was declared in object 'Account'.
+
+  //
+  //  6.5 Application Objects
+  //
+
+  // Not demoable in a specification test.
+
+  // Instead of declaring the main method like this:
+
+  //  object Hello {
+  //    def main(args: Array[String]) {
+  //      println("Hello world!")
+  //    }
+  //  }
+
+  // just have an object extending 'App' and right directly the code of the main method inside.
+
+  //  object Hello extends App {
+  //    println("Hello world!")
+  //  }
 }
