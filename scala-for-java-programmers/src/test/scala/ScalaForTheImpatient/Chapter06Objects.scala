@@ -181,4 +181,142 @@ object Chapter06Objects extends Specification {
   //  object Hello extends App {
   //    println("Hello world!")
   //  }
+
+  "classes with DelayedInit trait" should {
+
+    val container = mu.ArrayBuffer[String]()
+
+    "be initialized with a body directly in the declaration" in {
+
+      def logToTest(content: String) = container += content
+
+      trait ExampleBase extends DelayedInit {
+
+        logToTest("constructor of ExampleBase")
+
+        override def delayedInit(body: => Unit) {
+          logToTest("delayedInit in ExampleBase")
+          body
+        }
+      }
+
+      object ExampleObject extends ExampleBase {
+        logToTest("body of ExampleObject")
+        println("test")
+      }
+
+      container must beEmpty
+
+      val example = ExampleObject
+
+      example must beAnInstanceOf[ExampleBase]
+      example must beAnInstanceOf[DelayedInit]
+
+      container must contain(exactly(
+        "constructor of ExampleBase",
+        "delayedInit in ExampleBase",
+        "body of ExampleObject")
+      ).inOrder
+    }
+  }
+
+  //
+  //  6.6 Enumerations
+  //
+
+  "enumerations" should {
+
+    "be defined using the 'Enumeration' trait" in {
+
+      object Colors extends Enumeration {
+        val Red, Yellow, Green = Value
+      }
+
+      Colors.Red must beAnInstanceOf[Colors.Value]
+      Colors.Yellow must beAnInstanceOf[Colors.Value]
+      Colors.Green must beAnInstanceOf[Colors.Value]
+
+      var c = Colors.Red
+      c must be equalTo Colors.Red
+      c.id must be equalTo 0
+      c.toString must be equalTo "Red"
+
+      c = Colors.Yellow
+      c must be equalTo Colors.Yellow
+      c.id must be equalTo 1
+      c.toString must be equalTo "Yellow"
+
+      c = Colors.Green
+      c must be equalTo Colors.Green
+      c.id must be equalTo 2
+      c.toString must be equalTo "Green"
+    }
+
+    "be defined using the 'Enumeration' trait, and ID and a value" in {
+
+      object Colors extends Enumeration {
+        val Red = Value(0, "Stop")
+        // Name "Stop" ID 0
+        val Yellow = Value(10)
+        // Name "Yellow"
+        val Green = Value("Go") // ID 11
+      }
+
+      Colors.Red must be equalTo Colors.Red
+      Colors.Red.id must be equalTo 0
+      Colors.Red.toString must be equalTo "Stop"
+
+      Colors.Yellow must be equalTo Colors.Yellow
+      Colors.Yellow.id must be equalTo 10
+      Colors.Yellow.toString must be equalTo "Yellow"
+
+      Colors.Green must be equalTo Colors.Green
+      Colors.Green.id must be equalTo 11 // one more than the last defined value.
+      Colors.Green.toString must be equalTo "Go"
+    }
+
+    "be shorter to use with import" in {
+
+      object Colors extends Enumeration {
+        type Colors = Value
+        val Red, Yellow, Green = Value
+      }
+
+      import Colors._
+
+      val c = Red
+
+      c must beAnInstanceOf[Colors.Value] // still is valid (the real type)
+      c must beAnInstanceOf[Colors] // works because Colors._ is imported. This then refers to the alias 'Color' inside of the 'Color' object.
+    }
+
+    "be accessible from their ID" in {
+      object Colors extends Enumeration {
+        val Red, Yellow, Green = Value
+      }
+      Colors(0) must be equalTo Colors.Red
+      Colors(1) must be equalTo Colors.Yellow
+      Colors(2) must be equalTo Colors.Green
+    }
+
+    "be accessible by their name" in {
+      object Colors extends Enumeration {
+        val Red = Value(0, "Stop")
+        val Yellow = Value(10)
+        val Green = Value("Go") // ID 11
+      }
+
+      Colors.withName("Stop") must be equalTo Colors.Red
+      Colors.withName("Yellow") must be equalTo Colors.Yellow
+      Colors.withName("Go") must be equalTo Colors.Green
+    }
+  }
+
+
+  //
+  //  Exercises
+  //
+
+  // todo: Exercises of chapter 6.
+
 }
