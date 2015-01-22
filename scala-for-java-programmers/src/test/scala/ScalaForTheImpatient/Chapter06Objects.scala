@@ -54,6 +54,21 @@ object Chapter06Objects extends Specification {
 
     "be declared with the same name as its companion class" in {
 
+      object Account {
+        // The companion object
+        private var lastNumber = 0
+
+        private def newUniqueNumber() = {
+          lastNumber += 1
+          lastNumber
+        }
+
+        def apply(initialBalance: Double = 0.0): Account = {
+          // companion object has access to private members of the class.
+          new Account(initialBalance)
+        }
+      }
+
       class Account {
         val id = Account.newUniqueNumber()
         private var _balance = 0.0
@@ -68,21 +83,6 @@ object Chapter06Objects extends Specification {
         }
 
         def balance: Double = _balance
-      }
-
-      object Account {
-        // The companion object
-        private var lastNumber = 0
-
-        private def newUniqueNumber() = {
-          lastNumber += 1
-          lastNumber
-        }
-
-        def apply(initialBalance: Double = 0.0): Account = {
-          // companion object has access to private members of the class.
-          new Account(initialBalance)
-        }
       }
 
       // Constructor syntax.

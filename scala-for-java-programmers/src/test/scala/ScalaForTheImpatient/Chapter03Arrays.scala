@@ -528,8 +528,7 @@ object Chapter03Arrays extends Specification {
     }
 
     "allow both way (wrapping and unwrapping) conversion" in {
-      import scala.collection.JavaConversions.bufferAsJavaList
-      import scala.collection.JavaConversions.asScalaBuffer
+      import scala.collection.JavaConversions.{asScalaBuffer, bufferAsJavaList}
       val buffer = ArrayBuffer(1, 2, 3)
       val javaList: java.util.List[Int] = buffer // Scala to Java
       val unwrappedBuffer: mutable.Buffer[Int] = javaList // Java to Scala, simply unwrapping.
@@ -712,21 +711,24 @@ object Chapter03Arrays extends Specification {
       timeZonesInAmericaFromListComprehension must be equalTo timeZonesInAmericaFromMethodCalls
     }
 
-    "10. Import java.awt.datatransfer._ and make an object of type SystemFlavorMap with\nthe call\nval flavors = SystemFlavorMap.getDefaultFlavorMap().asInstanceOf[SystemFlavorMap]\nThen call the getNativesForFlavor method with parameter DataFlavor.imageFlavor\nand get the return value as a Scala buffer. (Why this obscure class? It’s hard\nto find uses of java.util.List in the standard Java library.)" in {
-      def contentIsTheSame(javaList: java.util.List[String], scalaList: Traversable[String]): Boolean = {
-        val javaIterator = javaList.iterator()
-        scalaList.forall(scalaElement => javaIterator.hasNext && javaIterator.next() == scalaElement)
-      }
-
-      import java.awt.datatransfer._
-      import scala.collection.JavaConversions.asScalaBuffer
-
-      val flavors = SystemFlavorMap.getDefaultFlavorMap.asInstanceOf[SystemFlavorMap]
-      val javaFormats: java.util.List[String] = flavors.getNativesForFlavor(DataFlavor.imageFlavor)
-      val scalaFormats : mutable.Buffer[String] = javaFormats
-      //      scalaFormats must contain(exactly("PNG", "JFIF", "TIFF")).inOrder
-      scalaFormats must have length javaFormats.size()
-      contentIsTheSame(javaFormats, scalaFormats) must beTrue
-    }
+// NB: This exercise is commented to avoid importing AWT. This spawns a new GUI application (at least on Mac OS X) that
+// needs to be manually closed after the tests are executed.
+//
+//    "10. Import java.awt.datatransfer._ and make an object of type SystemFlavorMap with\nthe call\nval flavors = SystemFlavorMap.getDefaultFlavorMap().asInstanceOf[SystemFlavorMap]\nThen call the getNativesForFlavor method with parameter DataFlavor.imageFlavor\nand get the return value as a Scala buffer. (Why this obscure class? It’s hard\nto find uses of java.util.List in the standard Java library.)" in {
+//      def contentIsTheSame(javaList: java.util.List[String], scalaList: Traversable[String]): Boolean = {
+//        val javaIterator = javaList.iterator()
+//        scalaList.forall(scalaElement => javaIterator.hasNext && javaIterator.next() == scalaElement)
+//      }
+//
+//      import java.awt.datatransfer._
+//      import scala.collection.JavaConversions.asScalaBuffer
+//
+//      val flavors = SystemFlavorMap.getDefaultFlavorMap.asInstanceOf[SystemFlavorMap]
+//      val javaFormats: java.util.List[String] = flavors.getNativesForFlavor(DataFlavor.imageFlavor)
+//      val scalaFormats : mutable.Buffer[String] = javaFormats
+//      //      scalaFormats must contain(exactly("PNG", "JFIF", "TIFF")).inOrder
+//      scalaFormats must have length javaFormats.size()
+//      contentIsTheSame(javaFormats, scalaFormats) must beTrue
+//    }
   }
 }

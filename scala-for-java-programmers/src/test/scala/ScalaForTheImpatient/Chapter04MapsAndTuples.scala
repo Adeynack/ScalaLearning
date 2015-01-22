@@ -6,9 +6,9 @@ import scala.collection._
 
 /**
  *
- *    Scala for the Impatient
+ * Scala for the Impatient
  *
- *    Chapter 4 : Maps and Tuples
+ * Chapter 4 : Maps and Tuples
  *
  */
 object Chapter04MapsAndTuples extends Specification {
@@ -317,86 +317,99 @@ object Chapter04MapsAndTuples extends Specification {
       //       but it didn't work.
     }
 
-    "pass a Scala map to a Java method" in {
+    // NB: Commented example (from the book) to prevent importing AWT.
+    //    "pass a Scala map to a Java method (book example)" in {
+    //      import scala.collection.JavaConversions.mapAsJavaMap
+    //      import java.awt.font.TextAttribute._
+    //      // import the different values of the enum
+    //      val attrs = Map(FAMILY -> "Serif", SIZE -> 12) // a Scala map
+    //      val font = new java.awt.Font(attrs) // expects a Java map
+    //      font.getFamily must be equalTo "Serif"
+    //      font.getSize must be equalTo 12
+    //    }
+
+    "pass a Scala map to a Java method (home made example)" in {
       import scala.collection.JavaConversions.mapAsJavaMap
-      import java.awt.font.TextAttribute._ // import the different values of the enum
-      val attrs = Map(FAMILY -> "Serif", SIZE -> 12) // a Scala map
-      val font = new java.awt.Font(attrs) // expects a Java map
-      font.getFamily must be equalTo "Serif"
-      font.getSize must be equalTo 12
+      val attributes = Map("One" -> 1, "Two" -> 2, "Three" -> 3)
+      val javaObject = new Chapter04MapsAndTuplesSupport
+
+      javaObject.log.toString must be equalTo ""
+
+      javaObject.needAJavaMap(attributes)
+      javaObject.log.toString must be equalTo "(One:1),(Two:2),(Three:3)"
+    }
+  }
+
+  //
+  // 4.7 Tuples
+  //
+
+  "tuples" should {
+
+    "are created using the parenthesis syntax and elements accessible with _1 (to _n)" in {
+      val t = (1, 3.14, "Fred")
+      // checking type with full type definition.
+      t must beAnInstanceOf[Tuple3[Int, Float, String]]
+      // checking the same type with syntaxic sugar (parenthesis).
+      t must beAnInstanceOf[(Int, Float, String)]
+      t._1 must beAnInstanceOf[Int] and be equalTo 1
+      t._2 must beAnInstanceOf[Float] and be equalTo 3.14
+      t._3 must beAnInstanceOf[String] and be equalTo "Fred"
     }
 
-    //
-    // 4.7 Tuples
-    //
+    "elements can be accessed by pattern matching to save then in individual variables" in {
+      val t = (1, 3.14, "Fred")
+      val (x1, x2, x3) = t
+      x1 must beAnInstanceOf[Int] and be equalTo t._1 and be equalTo 1
+      x2 must beAnInstanceOf[Float] and be equalTo t._2 and be equalTo 3.14
+      x3 must beAnInstanceOf[String] and be equalTo t._3 and be equalTo "Fred"
 
-    "tuples" should {
-
-      "are created using the parenthesis syntax and elements accessible with _1 (to _n)" in {
-        val t = (1, 3.14, "Fred")
-        // checking type with full type definition.
-        t must beAnInstanceOf[Tuple3[Int, Float, String]]
-        // checking the same type with syntaxic sugar (parenthesis).
-        t must beAnInstanceOf[(Int, Float, String)]
-        t._1 must beAnInstanceOf[Int] and be equalTo 1
-        t._2 must beAnInstanceOf[Float] and be equalTo 3.14
-        t._3 must beAnInstanceOf[String] and be equalTo "Fred"
-      }
-
-      "elements can be accessed by pattern matching to save then in individual variables" in {
-        val t = (1, 3.14, "Fred")
-        val (x1, x2, x3) = t
-        x1 must beAnInstanceOf[Int] and be equalTo t._1 and be equalTo 1
-        x2 must beAnInstanceOf[Float] and be equalTo t._2 and be equalTo 3.14
-        x3 must beAnInstanceOf[String] and be equalTo t._3 and be equalTo "Fred"
-
-        // For partial access, use _ for the values that are not needed.
-        val (y1, _, y2) = t
-        y1 must beAnInstanceOf[Int] and be equalTo t._1 and be equalTo 1
-        y2 must beAnInstanceOf[String] and be equalTo t._3 and be equalTo "Fred"
-      }
-
-      "tuples are useful for functions that return more than one value" in {
-        val p = "New York".partition(_.isUpper) // Yields the pair ("NY", "ew ork")
-        p must beAnInstanceOf[(String, String)]
-        p._1 must be equalTo "NY"
-        p._2 must be equalTo "ew ork"
-      }
+      // For partial access, use _ for the values that are not needed.
+      val (y1, _, y2) = t
+      y1 must beAnInstanceOf[Int] and be equalTo t._1 and be equalTo 1
+      y2 must beAnInstanceOf[String] and be equalTo t._3 and be equalTo "Fred"
     }
 
-    //
-    //  4.8 Zipping
-    //
+    "tuples are useful for functions that return more than one value" in {
+      val p = "New York".partition(_.isUpper) // Yields the pair ("NY", "ew ork")
+      p must beAnInstanceOf[(String, String)]
+      p._1 must be equalTo "NY"
+      p._2 must be equalTo "ew ork"
+    }
+  }
 
-    "zipping" should {
+  //
+  //  4.8 Zipping
+  //
 
-      "join different values together" in {
-        val symbols = Array("<", "-", ">")
-        val counts = Array(2, 10, 3)
+  "zipping" should {
 
-        val pairs = symbols zip counts // symbols.zip(count)
+    "join different values together" in {
+      val symbols = Array("<", "-", ">")
+      val counts = Array(2, 10, 3)
 
-        pairs must beAnInstanceOf[Array[(String, Int)]]
-        pairs(0) must beEqualTo ("<", 2)
-        pairs(1) must beEqualTo ("-", 10)
-        pairs(2) must beEqualTo (">", 3)
+      val pairs = symbols zip counts // symbols.zip(count)
 
-        val pairsString = (for ((s, c) <- pairs) yield s"$s has $c instances.") mkString " "
-        pairsString must be equalTo "< has 2 instances. - has 10 instances. > has 3 instances."
-      }
+      pairs must beAnInstanceOf[Array[(String, Int)]]
+      pairs(0) must beEqualTo("<", 2)
+      pairs(1) must beEqualTo("-", 10)
+      pairs(2) must beEqualTo(">", 3)
 
-      "serve to create maps from different sources" in {
-        val symbols = Array("<", "-", ">")
-        val counts = Array(2, 10, 3)
+      val pairsString = (for ((s, c) <- pairs) yield s"$s has $c instances.") mkString " "
+      pairsString must be equalTo "< has 2 instances. - has 10 instances. > has 3 instances."
+    }
 
-        val m : Map[String, Int] = symbols zip counts toMap
+    "serve to create maps from different sources" in {
+      val symbols = Array("<", "-", ">")
+      val counts = Array(2, 10, 3)
 
-        m must beAnInstanceOf[immutable.Map[String, Int]]
-        m must have length 3
-        m("<") must be equalTo 2
-        m("-") must be equalTo 10
-        m(">") must be equalTo 3
-      }
+      val m: Map[String, Int] = symbols zip counts toMap
+
+      m must beAnInstanceOf[immutable.Map[String, Int]]
+      m must have length 3
+      m("<") must be equalTo 2
+      m("-") must be equalTo 10
+      m(">") must be equalTo 3
     }
   }
 
