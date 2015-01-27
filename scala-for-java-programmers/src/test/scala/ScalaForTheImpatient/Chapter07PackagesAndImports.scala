@@ -1,9 +1,6 @@
 package ScalaForTheImpatient
 
-import java.util
-
 import org.specs2.mutable.Specification
-
 
 /**
 *
