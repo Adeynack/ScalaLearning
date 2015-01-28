@@ -537,7 +537,7 @@ object Chapter05Classes extends Specification {
       fred.contacts must contain(barney)
     }
 
-    "using member projection (instead of a companion object) to specify any instance of the parent class" in {
+    "using member projection (instead of a companioncompanion object) to specify any instance of the parent class" in {
       class Network {
 
         class Member(val name: String) {
