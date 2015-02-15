@@ -91,6 +91,144 @@ object Chapter08Inheritance extends Specification {
     // 8.3 Type checks and Casts
     //
 
+    class A {
+      def getFromA: String = "A"
+    }
+
+    class B extends A {
+      def getFromB: String = "B"
+    }
+
+    "type check" should {
+
+      "be done using 'isInstanceOf'" in {
+        val a = new A
+        a.isInstanceOf[A] must beTrue
+        a.isInstanceOf[B] must beFalse
+        val b = new B
+        b.isInstanceOf[A] must beTrue
+        b.isInstanceOf[B] must beTrue
+      }
+
+      "be false is value is null" in {
+        var a = new A
+        a.isInstanceOf[A] must beTrue
+        a = null
+        a.isInstanceOf[A] must beFalse
+      }
+    }
+
+    "type cast" should {
+
+      "be done using 'asInstanceOf'" in {
+        val b = new B
+        val a = b.asInstanceOf[A]
+        a.isInstanceOf[A] must beTrue
+      }
+
+      "fail with an exception if the cast is impossible" in {
+        def castAtoB: B = {
+          val a = new A
+          a.asInstanceOf[B]
+        }
+        castAtoB must throwA[ClassCastException]
+      }
+
+      "be done for specific class (not subclasses) using 'getClass' and 'classOf'" in {
+        val a = new A
+        (a.getClass == classOf[A]) must beTrue
+        (a.getClass == classOf[B]) must beFalse
+        val b = new B
+        (b.getClass == classOf[A]) must beFalse
+        (b.getClass == classOf[B]) must beTrue
+      }
+
+      "be done better using pattern matching" in {
+        def getValue(v: A): String =
+          v match {
+            case b: B => b.getFromB // use 'a' like a 'b'
+            case _ => v.getFromA // for all other cases
+          }
+
+        val aAsA: A = new A
+        getValue(aAsA) must be equalTo "A"
+
+        val bAsA: A = new B
+        getValue(bAsA) must be equalTo "B"
+      }
+    }
+
+    //
+    // 8.4 Protected fields and Methods
+    //
+
+    "protected member" should {
+
+      "be declared using the 'protected' modifier" in {
+
+        class A {
+          protected def getProtectedValue = "I am protected"
+        }
+
+        class B extends A {
+          def getValue = super.getProtectedValue
+        }
+
+        // (new A).getProtectedValue --> causes the following compile error:
+        // Access to protected method getProtectedValue not permitted [...]
+
+        val b = new B
+        b.getValue must be equalTo "I am protected" // ... but accessible through child classes!
+      }
+
+      "be limited to the current instance using [this]" in {
+
+        class A(value: String) {
+          protected val protectedButAccessibleFromOtherInstances = value
+          protected[this] val protectedToThisInstance = "accessible from this instance only"
+          def this(other: A) {
+            // this(other.protectedToThisInstance) <--- illegal statement because protected to [this] only.
+            this(other.protectedButAccessibleFromOtherInstances) // legal statement.
+          }
+        }
+
+        class B(other: A) extends A(other) {
+          def getProtectedValueFromMotherClass = protectedButAccessibleFromOtherInstances
+        }
+
+        val a = new A("this is a test")
+        val b = new B(a)
+        b.getProtectedValueFromMotherClass must be equalTo "this is a test"
+      }
+    }
+
+    //
+    // 8.5 Superclass Construction
+    //
+
+    // This is demonstrated a couple of times before. The important thing to mention is that
+    // it is only possible to call ONE mother-class constructor (the one used when specifying
+    // 'extends MotherClass(constructorParameters)'.
+    //
+    // The following patter is possible in Java, but not in Scala:
+    //
+    // Class A                                Class B extends A
+    // - ctor(int, int)                  <----- ctor(int, int)
+    //     ^
+    // - ctor(int) calling ctor(int int) <----- ctor(int)
+    //
+    // In Scala, it would have to be something like this:
+    //
+    // Class A                                Class B extends A
+    // - ctor(int, int)                  <----- ctor(int, int)
+    //     ^                                      ^
+    // - ctor(int) calling ctor(int int)        ctor(int)
+    //
+
+
+
+
+
   }
 
 }
