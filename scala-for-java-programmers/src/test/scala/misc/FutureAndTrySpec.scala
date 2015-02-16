@@ -11,6 +11,13 @@ import scala.util.{Failure, Try}
 class FutureAndTrySpec extends Specification {
   sequential
 
+  def toFuture[T](o: Option[T]): Future[T] = {
+    o match {
+      case None => throw new NoSuchElementException("No value.")
+      case value: T => Future.successful(value)
+    }
+  }
+
   def awaitResult[T](f: Future[T]): T = Await.result(f, Duration(10, SECONDS))
 
   "A Future depending on a Try" should {
@@ -217,58 +224,79 @@ class FutureAndTrySpec extends Specification {
       finalAnswer must be equalTo "f 1 of s1"
     }
 
-//    "work with some 2-generics converter" in {
-//
-//      def withFirst[TIn, TOut](seq: Seq[TIn], f: TIn => TOut): Future[TOut] =
-//        seq.headOption match {
-//          case Some(value) => Future.successful(f(value))
-//          case _ => Future.failed(new NoSuchElementException("No element found."))
-//        }
-//
-//      // Simple example
-//
-////      def firstList = Future.successful(Seq(1, 2, 3, 4, 5))
-////
-////      val firstToString1: String = awaitResult(withFirst(awaitResult(firstList), _.toString))
-////
-////      val firstToString2: String =
-////        awaitResult(
-////          for (
-////            e <- firstList;
-////            s <- withFirst(e, _.toString);
-////          ) yield s
-////        )
-////
-////      firstToString1 must be equalTo "1"
-////      firstToString2 must be equalTo "1"
-//
-//      // Complex example
-//
-//      val finalAnswerFuture: Future[String] =
-//        for (
-//          accounts <- use(_.listOfParentElements);
-//          firstOfFirstId <- withFirst[Value[Int], String](accounts, _.id);
-//          secondElements <- use(_.listOfSecondElements(firstOfFirstId));
-//          firstOfSecondId <- withFirst[Value[String], String](secondElements, _.id);
-//          finalResults <- use(_.somethingWithFirstAndSecondId(firstOfFirstId, firstOfSecondId));
-//          finalId <- withFirst[Value[String], String](finalResults, _.id)
-//        ) yield finalId
-//
-//      val finalAnswer = Await.result(finalAnswerFuture, Duration(10, SECONDS))
-//      finalAnswer must be equalTo "f 1 of s1"
-//    }
+    "work with some 2-generics converter" in {
 
-    "asd" in {
+      def withFirst[TIn, TOut](seq: Seq[TIn], f: TIn => TOut): Future[TOut] =
+        seq.headOption match {
+          case Some(value) => Future.successful(f(value))
+          case _ => Future.failed(new NoSuchElementException("No element found."))
+        }
 
-      val e: Either[Int, Throwable] = Left(42)
-      e match {
-        case Left(i) => println(i)
-        case Right(e: NullPointerException) => println("null")
-        case Right(e: IllegalStateException) => println("illegal")
-        case Right(e: Throwable) => println("whatever else...")
+      // Simple example
+
+      def firstList = Future.successful(Seq(1, 2, 3, 4, 5))
+
+      val firstToString1: String = awaitResult(withFirst(awaitResult(firstList), _.toString))
+
+      val firstToString2: String =
+        awaitResult(
+          for (
+            e <- firstList;
+            s <- withFirst(e, _.toString);
+          ) yield s
+        )
+
+      firstToString1 must be equalTo "1"
+      firstToString2 must be equalTo "1"
+
+      // Complex example ... must explicit the type parameters :'(
+
+      val finalAnswerFuture: Future[String] =
+        for {
+          accounts <- use(_.listOfParentElements)
+          firstOfFirstId <- withFirst[Value[Int], String](accounts, _.id)
+          secondElements <- use(_.listOfSecondElements(firstOfFirstId))
+          firstOfSecondId <- withFirst[Value[String], String](secondElements, _.id)
+          finalResults <- use(_.somethingWithFirstAndSecondId(firstOfFirstId, firstOfSecondId))
+          finalId <- withFirst[Value[String], String](finalResults, _.id)
+        } yield finalId
+
+      val finalAnswer = Await.result(finalAnswerFuture, Duration(10, SECONDS))
+      finalAnswer must be equalTo "f 1 of s1"
+    }
+
+    "fails gracefully if a step fails" in {
+
+      def doSomething(i: Int): Future[Int] = {
+        val newValue = i * 2
+        if (newValue > 7) throw new Exception("This is too much!")
+        Future.successful(newValue)
       }
 
-      true must beTrue
+      val finalAnswerFuture: Future[Int] =
+        for {
+          a: Seq[Int] <- Future.successful(Seq(1,2,3,4,5))
+          b: Int <- a //Seq(1,2,3,4,5)
+          c: Int <- doSomething(b)
+        } yield c
+
+      val finalAnswer = Await.ready(finalAnswerFuture, Duration(10, SECONDS))
+      finalAnswer.
     }
+
+
+    //// Just a piece of code to understand 'Either'.
+    //    "asd" in {
+    //
+    //      val e: Either[Int, Throwable] = Left(42)
+    //      e match {
+    //        case Left(i) => println(i)
+    //        case Right(e: NullPointerException) => println("null")
+    //        case Right(e: IllegalStateException) => println("illegal")
+    //        case Right(e: Throwable) => println("whatever else...")
+    //      }
+    //
+    //      true must beTrue
+    //    }
   }
 }
