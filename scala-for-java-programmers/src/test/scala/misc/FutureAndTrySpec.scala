@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit._
 
 import org.specs2.mutable.Specification
 
+import scala.collection.immutable.Range.Inclusive
 import scala.concurrent._
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Try}
@@ -282,6 +283,26 @@ class FutureAndTrySpec extends Specification {
 //
 //      val finalAnswer = Await.ready(finalAnswerFuture, Duration(10, SECONDS))
 //      finalAnswer.
+//    }
+
+//    "mix return types" in {
+//      def futureA: Future[Seq[Int]] = Future.successful(Seq(1,2,3,4,5))
+//      def futureB(a: Int): Future[Seq[Int]] = Future.successful((a*10) to (a*10+3))
+//
+//      val result1: Future[Seq[Int]] = for {
+//        a: Seq[Int] <- futureA
+//      } yield a
+//
+//      val result2: Future[Nothing] = for {
+//        a: Seq[Int] <- futureA
+//        b: Int <- a
+//      } yield b
+//
+//      val result3 =
+//      futureA.flatMap { (a: Seq[Int]) =>
+//        val b: Seq[Nothing] = a.flatMap(futureB(a))
+//        b
+//      }
 //    }
 
 
