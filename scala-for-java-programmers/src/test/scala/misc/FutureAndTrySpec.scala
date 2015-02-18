@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit._
 
 import org.specs2.mutable.Specification
 
-import scala.collection.immutable.Range.Inclusive
 import scala.concurrent._
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Try}
@@ -266,43 +265,44 @@ class FutureAndTrySpec extends Specification {
       finalAnswer must be equalTo "f 1 of s1"
     }
 
-//    "fails gracefully if a step fails" in {
-//
-//      def doSomething(i: Int): Future[Int] = {
-//        val newValue = i * 2
-//        if (newValue > 7) throw new Exception("This is too much!")
-//        Future.successful(newValue)
-//      }
-//
-//      val finalAnswerFuture: Future[Int] =
-//        for {
-//          a: Seq[Int] <- Future.successful(Seq(1,2,3,4,5))
-//          b: Int <- a //Seq(1,2,3,4,5)
-//          c: Int <- doSomething(b)
-//        } yield c
-//
-//      val finalAnswer = Await.ready(finalAnswerFuture, Duration(10, SECONDS))
-//      finalAnswer.
-//    }
+    //    "fails gracefully if a step fails" in {
+    //
+    //      def doSomething(i: Int): Future[Int] = {
+    //        val newValue = i * 2
+    //        if (newValue > 7) throw new Exception("This is too much!")
+    //        Future.successful(newValue)
+    //      }
+    //
+    //      val finalAnswerFuture: Future[Int] =
+    //        for {
+    //          a: Seq[Int] <- Future.successful(Seq(1,2,3,4,5))
+    //          b: Int <- a //Seq(1,2,3,4,5)
+    //          c: Int <- doSomething(b)
+    //        } yield c
+    //
+    //      val finalAnswer = Await.ready(finalAnswerFuture, Duration(10, SECONDS))
+    //      finalAnswer.
+    //    }
 
 //    "mix return types" in {
-//      def futureA: Future[Seq[Int]] = Future.successful(Seq(1,2,3,4,5))
-//      def futureB(a: Int): Future[Seq[Int]] = Future.successful((a*10) to (a*10+3))
+//      case class Account(id: String) // has 0..n child Profile
+//      case class Profile(id: String) // has 1 parent Account
 //
-//      val result1: Future[Seq[Int]] = for {
-//        a: Seq[Int] <- futureA
-//      } yield a
+//      def getAccounts: Future[Seq[Account]] = Future.successful(for (i <- 1 to 5) yield Account(s"A$i"))
+//      def getProfilesForAccount(a: Account): Future[Seq[Profile]] = Future.successful(for (i <- 1 to 8) yield Profile(s"${a.id}P$i"))
 //
-//      val result2: Future[Nothing] = for {
-//        a: Seq[Int] <- futureA
-//        b: Int <- a
-//      } yield b
+//      val accountsFuture: Future[Seq[Account]] =
+//        for {
+//          a: Seq[Account] <- getAccounts
+//        } yield a
 //
-//      val result3 =
-//      futureA.flatMap { (a: Seq[Int]) =>
-//        val b: Seq[Nothing] = a.flatMap(futureB(a))
-//        b
-//      }
+//      val profilesFuture: Future[Seq[Profile]] =
+//        for {
+//          accounts<- getAccounts.map(Future.traverse(_)(Future(_)))
+//          account: Int <- a
+//        } yield Future(b)
+//
+//      getAccounts.
 //    }
 
 

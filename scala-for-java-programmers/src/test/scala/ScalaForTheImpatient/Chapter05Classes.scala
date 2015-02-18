@@ -92,7 +92,32 @@ object Chapter05Classes extends Specification {
       p.age must be equalTo 1
       p.ageHistory must contain(exactly(0, 1, 2, 1)).inOrder
     }
+
+    "define a member that is publicly a value, but internally a variable" in {
+
+      class Person {
+        private var privateAge = 0
+
+        def age = privateAge
+
+        private def age_=(newValue: Int): Unit = privateAge = newValue
+
+        def incrementAge = {
+          age += 1
+        }
+      }
+
+      val p = new Person
+      p.age must be equalTo 0
+      p.incrementAge
+      p.age must be equalTo 1
+      p.incrementAge
+      p.age must be equalTo 2
+      p.incrementAge
+      p.age must be equalTo 3
+    }
   }
+
   //
   //  5.3 Properties with Only Getters
   //
@@ -504,9 +529,11 @@ object Chapter05Classes extends Specification {
     "another way of nesting class for most flexibility" in {
       // Move the nested class in a 'companion object'.
       object Network {
+
         class Member(val name: String) {
           val contacts = new mutable.ArrayBuffer[Member]
         }
+
       }
       class Network {
         private val members = new mutable.ArrayBuffer[Network.Member]
@@ -573,11 +600,15 @@ object Chapter05Classes extends Specification {
     }
 
     "accessing the outer instance" in {
-      class Network(val name: String) { outer => // <---- here is the alias 'outer' (could be any name) that will be used for accessing
+      class Network(val name: String) {
+        outer =>
+
+        // <---- here is the alias 'outer' (could be any name) that will be used for accessing
         //                              the 'this' instance of 'Network'.
 
         class Member(val name: String) {
           val contacts = new mutable.ArrayBuffer[Network#Member]
+
           def description = s"$name inside ${outer.name}."
         }
 
